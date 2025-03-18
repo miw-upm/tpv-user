@@ -1,13 +1,18 @@
-# Monta solo el API y reutiliza el contenedor de bases de datos
 services:
-  app:
+  tpv-user-server:
     build: .
-    container_name: tpv-user
+    image: tpv-user:2.0.0
+    container_name: tpv-user-server
     restart: always
     ports:
       - "8081:8081"
     environment:
       # host.docker.internal: ruta al localhost de la máquina anfitriona
       SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/tpvuser
+    networks:
+      - miw
 
+networks:
+  miw:
+    external: true
 #> docker compose up --build -d

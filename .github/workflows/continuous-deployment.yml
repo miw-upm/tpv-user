@@ -1,7 +1,7 @@
-name: CD - GitHub Docker Packages
+name: CD - GitHub Packages
 on:
   push:
-    branches: ['master']
+    branches: [master]
 
 env:
   REPOSITORY: ${{ github.repository }} # <user>/<repo>
@@ -12,7 +12,7 @@ jobs:
     name: Build & Push GitHub Package & Deploy on Render Docker Image
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repository
+      - name: Clone repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -26,18 +26,15 @@ jobs:
 
       - name: Extract version from pom.xml
         id: get-version
-        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        run: |
+          echo "ARTIFACT=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_ENV          
+          echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.GHCR_URL }}
           username: ${{ github.actor }}
-          # 1º Creación del Token de Acceso Personal
-          #    Cuenta de GitHub >> Developer settings >> Personal access tokens >> Tokens >> Generate new token
-          #    write:packages & read:packages & delete:packages & repo
-          # 2º Configuración de Secrets en GitHub
-          #    repositorio en GitHub >> settings >> secrets and variables >> actions >> new repository secret
           password: ${{ secrets.GHCR_PERSONAL_ACCESS_TOKEN }}
 
       - name: Build & Push Docker image
@@ -48,3 +45,4 @@ jobs:
           tags: |
             ${{ env.GHCR_URL }}/${{ env.REPOSITORY }}:${{ env.VERSION }}
             ${{ env.GHCR_URL }}/${{ env.REPOSITORY }}:latest
+
