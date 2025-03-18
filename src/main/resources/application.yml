@@ -20,12 +20,6 @@ info:
     artifact: "@project.artifactId@"
     version: "@project.version@"
     build: "@maven.build.timestamp@"
-
-logging:
-  level:
-    root: WARN
-    es.upm: DEBUG
-
 management:
   endpoints:
     web:
@@ -34,6 +28,11 @@ management:
   info:
     env:
       enabled: true
+
+logging:
+  level:
+    root: WARN
+    es.upm: DEBUG
 
 miw:
   admin: admin
@@ -46,3 +45,13 @@ miw:
     issuer: http://localhost:8081
     api-client-id: api-client-id
     api-client-secret: api-client-secret
+
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 20
+    lease-expiration-duration-in-seconds: 60
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

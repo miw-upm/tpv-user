@@ -1,18 +1,20 @@
 services:
-  tpv-user-server:
+  tpv-user:
     build: .
     image: tpv-user:2.0.0
-    container_name: tpv-user-server
+    container_name: tpv-user
     restart: always
     ports:
       - "8081:8081"
     environment:
       # host.docker.internal: ruta al localhost de la máquina anfitriona
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/tpvuser
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tpvuser
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://tpv-eureka:8761/eureka/
     networks:
       - miw
 
 networks:
   miw:
     external: true
+
 #> docker compose up --build -d

@@ -25,3 +25,8 @@ miw:
     issuer: http://localhost:8081
     api-client-id: api-client-id
     api-client-secret: api-client-secret
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
