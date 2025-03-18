@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 
 springdoc:
   api-docs:
@@ -21,7 +21,7 @@ miw:
   oauth2:
     client-id: client-id
     client-secret: client-secret
-    redirect-uri: http://localhost:8080/login/oauth2/code/cliente-oidc
-    issuer: http://localhost:8080
+    redirect-uri: http://localhost:8081/login/oauth2/code/cliente-oidc
+    issuer: http://localhost:8081
     api-client-id: api-client-id
     api-client-secret: api-client-secret

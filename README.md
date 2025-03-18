@@ -17,7 +17,7 @@ La seguridad esta basada en OAuth2 y OpenId Connect, desarrollando ambos proceso
 
 ```sh
 > cd <folder path>
-> git clone https://github.com/miw-upm/spring-user
+> git clone https://github.com/miw-upm/tpv-user
 ```
 
 2. Importar el proyecto mediante **IntelliJ IDEA**
@@ -30,7 +30,7 @@ La seguridad esta basada en OAuth2 y OpenId Connect, desarrollando ambos proceso
 ```sh
 > docker compose up --build -d
 ```
-* Necesita de una bases de datos: **url:** `jdbc:postgresql://localhost:5432/betca`, **username:**`postgres` y **password:** `postgres`. Recordar que la BD **betca** se deben crear manualmente.
+* Necesita de una bases de datos: **url:** `jdbc:postgresql://localhost:5432/tpvuser`, **username:**`postgres` y **password:** `postgres`. Recordar que la BD **tpvuser** se deben crear manualmente.
 
 * Se aporta un fichero `docker-compose-db.yml`que monta 3 motores de BD sobre Docker: Postgres, MySQL y MongoDB.
 ```sh

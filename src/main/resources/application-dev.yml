@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   jpa:
@@ -7,16 +7,16 @@ spring:
       ddl-auto: update
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/betca
+    url: jdbc:postgresql://localhost:5432/tpvuser
     username: postgres
     password: postgres
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080
-          jwk-set-uri: http://localhost:8080/oauth2/jwks
+          issuer-uri: http://localhost:8081
+          jwk-set-uri: http://localhost:8081/oauth2/jwks
 
 springdoc:
   swagger-ui:
-    oauth2RedirectUrl: http://localhost:8080/login/oauth2/code/cliente-oidc
+    oauth2RedirectUrl: http://localhost:8081/login/oauth2/code/cliente-oidc

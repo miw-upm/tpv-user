@@ -18,8 +18,8 @@ import org.springframework.context.annotation.Configuration;
         type = SecuritySchemeType.OAUTH2,
         flows = @OAuthFlows(
                 authorizationCode = @OAuthFlow(
-                        authorizationUrl = "http://localhost:8080/oauth2/authorize",
-                        tokenUrl = "http://localhost:8080/oauth2/token"
+                        authorizationUrl = "http://localhost:8081/oauth2/authorize",
+                        tokenUrl = "http://localhost:8081/oauth2/token"
                 )
         )
 )

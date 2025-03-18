@@ -1,6 +1,6 @@
 spring:
   application:
-    name: spring-user
+    name: tpv-user
   profiles:
   # Profile ----------------------------------------
     active: dev
@@ -42,7 +42,7 @@ miw:
   oauth2:
     client-id: client-id
     client-secret: client-secret
-    redirect-uri: http://localhost:8080/login/oauth2/code/cliente-oidc
-    issuer: http://localhost:8080
+    redirect-uri: http://localhost:8081/login/oauth2/code/cliente-oidc
+    issuer: http://localhost:8081
     api-client-id: api-client-id
     api-client-secret: api-client-secret

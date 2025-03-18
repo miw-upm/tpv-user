@@ -12,14 +12,3 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]
-
-
-# ------------------------------------- COMANDOS ----------------------------------------------------------
-# Construir la imagen, ATENCION!!! existe un punto al final que se debe incluir
-#> docker build -t spring-user .
-
-# Crea y arrancar el contenedor a partir de la imagen
-#> docker run -d --name spring-user-app  -p 8080:8080 spring-user
-
-# Arranca el contenedor
-#> docker start spring-user-app

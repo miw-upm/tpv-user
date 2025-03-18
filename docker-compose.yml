@@ -2,12 +2,12 @@
 services:
   app:
     build: .
-    container_name: spring-user
+    container_name: tpv-user
     restart: always
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
       # host.docker.internal: ruta al localhost de la máquina anfitriona
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/betca
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/tpvuser
 
 #> docker compose up --build -d
