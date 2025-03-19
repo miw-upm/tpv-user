@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -31,6 +32,9 @@ public class UserService {
             throw new ForbiddenException("Insufficient role to create this userDto: " + user);
         }
         this.assertNoExistByMobile(user.getMobile());
+        this.assertNoExistByEmail(user.getEmail());
+        this.assertNoExistByDni(user.getDni());
+        user.setId(UUID.randomUUID());
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
         user.setRegistrationDate(LocalDateTime.now());
         this.userRepository.save(user);
@@ -50,8 +54,20 @@ public class UserService {
     }
 
     private void assertNoExistByMobile(String mobile) {
-        if (this.userRepository.findByMobile(mobile).isPresent()) {
+        if (this.userRepository.existsByMobile(mobile)) {
             throw new ConflictException("The mobile already exists: " + mobile);
+        }
+    }
+
+    private void assertNoExistByEmail(String email) {
+        if (email != null && this.userRepository.existsByEmail(email)) {
+            throw new ConflictException("The email already exists: " + email);
+        }
+    }
+
+    private void assertNoExistByDni(String dni) {
+        if (dni != null && this.userRepository.existsByDni(dni)) {
+            throw new ConflictException("The dni already exists: " + dni);
         }
     }
 

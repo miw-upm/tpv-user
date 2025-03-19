@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
 @Data
@@ -16,13 +17,15 @@ import java.time.LocalDateTime;
 @Table(name = "betcaUser") // conflict with user table
 public class User {
     @Id
-    @GeneratedValue
-    private int id;
+    @Column(updatable = false, nullable = false, columnDefinition = "uuid")
+    private UUID id;
     @Column(unique = true, nullable = false)
     private String mobile;
     private String firstName;
     private String familyName;
+    @Column(unique = true)
     private String email;
+    @Column(unique = true)
     private String dni;
     private String address;
     private String password;

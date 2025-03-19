@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Log4j2
 @Repository
@@ -40,7 +41,7 @@ public class DatabaseStarting {
 
     public void initialize() {
         if (this.userRepository.findByScopeIn(List.of(Scope.ADMIN)).isEmpty()) {
-            User user = User.builder().mobile(this.mobile).firstName(this.admin)
+            User user = User.builder().id(UUID.randomUUID()).mobile(this.mobile).firstName(this.admin)
                     .password(this.passwordEncoder.encode(this.password))
                     .scope(Scope.ADMIN).registrationDate(LocalDateTime.now()).active(true).build();
             this.userRepository.save(user);

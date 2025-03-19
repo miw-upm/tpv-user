@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -18,8 +20,27 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
-    void testCreateUserForbidden() {
-        User userDto = User.builder().mobile("666000666").firstName("k").scope(Scope.ADMIN).build();
+    void testCreateUser() {
+        User userDto = User.builder().id(UUID.randomUUID()).mobile("000000001").firstName("k").scope(Scope.ADMIN).build();
         assertThrows(ForbiddenException.class, () -> this.userService.createUser(userDto, Scope.MANAGER));
     }
+
+    @Test
+    void testCreateUserForbidden() {
+        User userDto = User.builder().id(UUID.randomUUID()).mobile("666000666").firstName("k").scope(Scope.ADMIN).build();
+        assertThrows(ForbiddenException.class, () -> this.userService.createUser(userDto, Scope.MANAGER));
+    }
+
+    @Test
+    void testCreateUserForbiddenByEmail() {
+        User userDto = User.builder().id(UUID.randomUUID()).mobile("000000002").firstName("k").email("adm@gmail.com").scope(Scope.ADMIN).build();
+        assertThrows(ForbiddenException.class, () -> this.userService.createUser(userDto, Scope.MANAGER));
+    }
+
+    @Test
+    void testCreateUserForbiddenByDni() {
+        User userDto = User.builder().id(UUID.randomUUID()).mobile("000000003").firstName("k").dni("66666601C").scope(Scope.ADMIN).build();
+        assertThrows(ForbiddenException.class, () -> this.userService.createUser(userDto, Scope.MANAGER));
+    }
+
 }

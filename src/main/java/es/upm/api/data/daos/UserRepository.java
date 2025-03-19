@@ -11,8 +11,10 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByMobile(String mobile);
-
     List<User> findByScopeIn(Collection<Scope> scopes);
+    boolean existsByMobile(String mobile);
+    boolean existsByEmail(String email);
+    boolean existsByDni(String dni);
 
     @Query("select u from User u where " +
             "(coalesce(?1, '') = '' or u.mobile like concat('%',?1,'%')) and " +
