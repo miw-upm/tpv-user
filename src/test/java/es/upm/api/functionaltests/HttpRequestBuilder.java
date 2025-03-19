@@ -87,25 +87,19 @@ public class HttpRequestBuilder {
 
     private String obtainAccessToken(String scope) {
         String accessTokenUrl = "/oauth2/token";
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
         String auth = apiClientId + ":" + apiClientSecret;
         String encodedAuth = Base64.getEncoder()
                 .encodeToString(auth.getBytes(StandardCharsets.UTF_8));
         headers.set(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
-
         MultiValueMap<String, String> credentialsBody = new LinkedMultiValueMap<>();
         credentialsBody.add("grant_type", "client_credentials");
         credentialsBody.add("scope", scope);
-
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(credentialsBody, headers);
-
         Map<?, ?> responseBody = Objects.requireNonNull(
                 testRestTemplate.postForEntity(accessTokenUrl, request, Map.class).getBody()
         );
-
         return responseBody.get("access_token").toString();
     }
 
