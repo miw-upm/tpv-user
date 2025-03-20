@@ -2,7 +2,7 @@ spring:
   application:
     name: tpv-user
   profiles:
-    # Profile ----------------------------------------
+  # Profile ----------------------------------------
     active: dev
   # ------------------------------------------------
   output:
@@ -51,7 +51,7 @@ miw:
   oauth2:
     client-id: client-id
     client-secret: client-secret
-    redirect-uri: "http://localhost:8081/swagger-ui/oauth2-redirect.html"
-    issuer: http://localhost:8081
+    redirect-uri: http://localhost:8081/swagger-ui/oauth2-redirect.html
+    issuer: http://tpv-user
     api-client-id: api-client-id
     api-client-secret: api-client-secret

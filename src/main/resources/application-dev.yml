@@ -14,8 +14,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8081
-          jwk-set-uri: http://localhost:8081/oauth2/jwks
+          issuer-uri: http://tpv-user
+          jwk-set-uri: http://tpv-user/oauth2/jwks
 
 springdoc:
   swagger-ui:
