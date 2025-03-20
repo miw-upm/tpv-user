@@ -6,21 +6,24 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import es.upm.api.data.entities.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.KeyPair;
@@ -31,34 +34,18 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Configuration
 public class AuthorizationServerConfig {  // Generate tokens OAuth2
 
     private final PasswordEncoder passwordEncoder;
-    private final String clientId;
-    private final String clientSecret;
-    private final String redirectUri;
-    private final String issuer;
-    private final String apiClientId;
-    private final String apiClientSecret;
+    private final OAuth2Properties oAuth2Properties;
 
     @Autowired
-    public AuthorizationServerConfig(
-            PasswordEncoder passwordEncoder,
-            @Value("${miw.oauth2.client-id}") String clientId,
-            @Value("${miw.oauth2.client-secret}") String clientSecret,
-            @Value("${miw.oauth2.redirect-uri}") String redirectUri,
-            @Value("${miw.oauth2.issuer}") String issuer,
-            @Value("${miw.oauth2.api-client-id}") String apiClientId,
-            @Value("${miw.oauth2.api-client-secret}") String apiClientSecret) {
+    public AuthorizationServerConfig(PasswordEncoder passwordEncoder, OAuth2Properties oAuth2Properties) {
         this.passwordEncoder = passwordEncoder;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
-        this.issuer = issuer;
-        this.apiClientId = apiClientId;
-        this.apiClientSecret = apiClientSecret;
+        this.oAuth2Properties = oAuth2Properties;
     }
 
     @Bean
@@ -85,28 +72,23 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
 
         RegisteredClient userClient =
                 RegisteredClient.withId(UUID.randomUUID().toString())
-                        .clientId(clientId)
-                        .clientSecret(passwordEncoder.encode(clientSecret))
+                        .clientId(this.oAuth2Properties.getClientId())
+                        .clientSecret(passwordEncoder.encode(this.oAuth2Properties.getClientSecret()))
                         .clientAuthenticationMethods(methods -> methods.addAll(Set.of(
                                 ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
                                 ClientAuthenticationMethod.CLIENT_SECRET_POST
                         )))
                         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                        .redirectUris(uris -> uris.addAll(Set.of(
-                                "http://localhost:8082/swagger-ui/oauth2-redirect.html",
-                                "http://localhost:8081/swagger-ui/oauth2-redirect.html"
-                        )))
-
-                        .redirectUri(redirectUri) // añadir angular client
+                        .redirectUris(uris -> uris.addAll(this.oAuth2Properties.getRedirectUris()))
                         .scopes(scopes -> scopes.addAll(Scope.allValues()))
                         .tokenSettings(tokenSettings)
                         .build();
 
         RegisteredClient apiClient =
                 RegisteredClient.withId(UUID.randomUUID().toString())
-                        .clientId(apiClientId)
-                        .clientSecret(passwordEncoder.encode(apiClientSecret))
+                        .clientId(this.oAuth2Properties.getApiClientId())
+                        .clientSecret(passwordEncoder.encode(this.oAuth2Properties.getApiClientSecret()))
                         .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                         .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                         .scopes(scopes -> scopes.addAll(Scope.allValues()))
@@ -153,8 +135,29 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer(issuer) //Emisor
+                .issuer(this.oAuth2Properties.getIssuer()) //Emisor
                 .build();
+    }
+
+    @Bean
+    //@Profile("!test")
+    public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizerRoleByScope() {
+        return context -> {
+            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
+                Set<String> scopes;
+                if (context.getPrincipal() != null && context.getPrincipal().getAuthorities() != null &&
+                        !context.getPrincipal().getAuthorities().isEmpty()) {
+                    scopes = context.getPrincipal().getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .map(Scope::of)
+                            .map(Scope::value)
+                            .collect(Collectors.toSet()); //Scope of user
+                } else {
+                    scopes = context.getAuthorizedScopes(); // Scope of request
+                }
+                context.getClaims().claim("scope", String.join(" ", scopes));
+            }
+        };
     }
 
 }

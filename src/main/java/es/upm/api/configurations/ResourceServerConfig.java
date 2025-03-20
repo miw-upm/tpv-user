@@ -51,7 +51,6 @@ public class ResourceServerConfig {  // validate tokens y security APIs con SCOP
                         .map(group -> new SimpleGrantedAuthority(Scope.PREFIX + group))
                         .collect(Collectors.toList());
             }
-
         });
         return jwtAuthenticationConverter;
     }

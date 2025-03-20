@@ -23,21 +23,15 @@ public class LoggingFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         log.info("-------------------------------------------------------------------------------------------------");
         log.info("Request: {} {}", request.getMethod(), request.getRequestURI());
-
-        // Log de todos los headers
         log.info("Headers:");
         Collections.list(request.getHeaderNames()).forEach(headerName -> {
             String headerValue = request.getHeader(headerName);
             log.info("  {}: {}", headerName, headerValue);
         });
-
-        // Log de todos los parámetros
         log.info("Parameters:");
         Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
@@ -45,9 +39,7 @@ public class LoggingFilter extends OncePerRequestFilter {
             String paramValue = request.getParameter(paramName);
             log.info("  {}: {}", paramName, paramValue);
         }
-
         filterChain.doFilter(request, response);
-
     }
 }
 
