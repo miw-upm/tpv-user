@@ -13,19 +13,20 @@ spring:
       ddl-auto: update
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/betca
+    url: jdbc:postgresql://localhost:5432/tpvuser
     username: postgres
     password: postgres
   security:
      oauth2:
-       client-id: client-id
-       client-secret: client-secret
-       redirect-uris:
-         - http://localhost:8081/swagger-ui/oauth2-redirect.html
-         - http://localhost:8082/swagger-ui/oauth2-redirect.html
-       issuer: http://tpv-user
-       api-client-id: api-client-id
-       api-client-secret: api-client-secret
+       clients:
+         client-id: client-id
+         client-secret: client-secret
+         redirect-uris:
+           - http://localhost:8081/swagger-ui/oauth2-redirect.html
+           - http://localhost:8082/swagger-ui/oauth2-redirect.html
+         issuer: http://tpv-user
+         api-client-id: api-client-id
+         api-client-secret: api-client-secret
 
 eureka:
   client:
