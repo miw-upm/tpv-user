@@ -24,7 +24,7 @@ class UserResourceFT {
     private final HttpRequestBuilder httpRequestBuilder;
 
     @Autowired
-    UserResourceFT(@Value("${miw.oauth2.api-client-id}") String apiClientId, @Value("${miw.oauth2.api-client-secret}") String apiClientSecret, TestRestTemplate testRestTemplate) {
+    UserResourceFT(@Value("${spring.security.oauth2.clients.api-client-id}") String apiClientId, @Value("${spring.security.oauth2.clients.api-client-secret}") String apiClientSecret, TestRestTemplate testRestTemplate) {
         this.httpRequestBuilder = HttpRequestBuilder.create(testRestTemplate, apiClientId, apiClientSecret);
     }
 

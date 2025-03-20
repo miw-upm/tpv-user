@@ -14,6 +14,17 @@ spring:
     default-property-inclusion: NON_NULL
   jpa:
     open-in-view: false
+  security:
+    oauth2:
+      clients:
+        client-id: client-id
+        client-secret: client-secret
+        redirect-uris:
+          - http://localhost:8081/swagger-ui/oauth2-redirect.html
+          - http://localhost:8082/swagger-ui/oauth2-redirect.html
+        issuer: http://tpv-user
+        api-client-id: api-client-id
+        api-client-secret: api-client-secret
 
 info:
   app:
@@ -48,12 +59,3 @@ miw:
   admin: admin
   mobile: 6
   password: 6
-  oauth2:
-    client-id: client-id
-    client-secret: client-secret
-    redirect-uris:
-      - http://localhost:8081/swagger-ui/oauth2-redirect.html
-      - http://localhost:8082/swagger-ui/oauth2-redirect.html
-    issuer: http://tpv-user
-    api-client-id: api-client-id
-    api-client-secret: api-client-secret
