@@ -68,6 +68,7 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
         authorizationServerConfigurer.oidc(Customizer.withDefaults()); //.well-known/openid-configuration
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
