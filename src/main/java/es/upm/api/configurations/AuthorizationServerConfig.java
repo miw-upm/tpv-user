@@ -92,6 +92,11 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
                         )))
                         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                        .redirectUris(uris -> uris.addAll(Set.of(
+                                "http://localhost:8082/swagger-ui/oauth2-redirect.html",
+                                "http://localhost:8081/swagger-ui/oauth2-redirect.html"
+                        )))
+
                         .redirectUri(redirectUri) // añadir angular client
                         .scopes(scopes -> scopes.addAll(Scope.allValues()))
                         .tokenSettings(tokenSettings)
