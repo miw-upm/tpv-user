@@ -19,4 +19,6 @@ spring:
 
 springdoc:
   swagger-ui:
-    oauth2RedirectUrl: http://localhost:8081/login/oauth2/code/cliente-oidc
+    oauth:
+      client-id: client-id
+      client-secret: client-secret

@@ -22,9 +22,6 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -32,8 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Configuration
@@ -90,10 +86,13 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
                 RegisteredClient.withId(UUID.randomUUID().toString())
                         .clientId(clientId)
                         .clientSecret(passwordEncoder.encode(clientSecret))
-                        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                        .clientAuthenticationMethods(methods -> methods.addAll(Set.of(
+                                ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
+                                ClientAuthenticationMethod.CLIENT_SECRET_POST
+                        )))
                         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                        .redirectUri(redirectUri)
+                        .redirectUri(redirectUri) // añadir angular client
                         .scopes(scopes -> scopes.addAll(Scope.allValues()))
                         .tokenSettings(tokenSettings)
                         .build();
@@ -115,7 +114,8 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
     // 1º- Se inicia: http://localhost:8080/oauth2/authorize?response_type=code&client_id=client-id
     // 2º- Se redirige a la ruta programada, el usuario se logea y se redirije a la url programada
     // http://localhost:8080/login/oauth2/code/cliente-oidc?code=4mnIudIk-YKKyFI3B6L6tztFAP7Xz90fqQ_NbxHE....
-    // 3º - Header: Auth Basic cliente-id:client-secret & "Content-Type" = "application/x-www-form-urlencoded"
+    // 3º http://localhost:8080/oauth2/token
+    //      Header: Auth Basic cliente-id:client-secret & "Content-Type" = "application/x-www-form-urlencoded"
     //      Body: "grant_type=authorization_code &code=$code"
     // 4º - $token = response.token_access
     // 5º - Para invocar un recurso:

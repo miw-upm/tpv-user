@@ -34,18 +34,6 @@ logging:
     root: WARN
     es.upm: DEBUG
 
-miw:
-  admin: admin
-  mobile: 6
-  password: 6
-  oauth2:
-    client-id: client-id
-    client-secret: client-secret
-    redirect-uri: http://localhost:8081/login/oauth2/code/cliente-oidc
-    issuer: http://localhost:8081
-    api-client-id: api-client-id
-    api-client-secret: api-client-secret
-
 eureka:
   instance:
     lease-renewal-interval-in-seconds: 20
@@ -55,3 +43,15 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+miw:
+  admin: admin
+  mobile: 6
+  password: 6
+  oauth2:
+    client-id: client-id
+    client-secret: client-secret
+    redirect-uri: "http://localhost:8081/swagger-ui/oauth2-redirect.html"
+    issuer: http://localhost:8081
+    api-client-id: api-client-id
+    api-client-secret: api-client-secret
