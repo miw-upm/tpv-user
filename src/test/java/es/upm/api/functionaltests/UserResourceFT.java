@@ -31,23 +31,32 @@ class UserResourceFT {
     @Test
     void testReadUser() {
         ResponseEntity<UserDto> response = this.httpRequestBuilder
-                .get(USERS + MOBILE_ID, "6").scope(ADMIN).exchange(UserDto.class);
+                .get(USERS + ID_ID, "a4093025-cd94-40e0-986a-a15e3ad62ea8").scope(ADMIN).exchange(UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getFirstName()).isEqualTo("admin");
+        assertThat(response.getBody().getFirstName()).isEqualTo("customer");
+    }
+
+    @Test
+    void testFindAll() {
+        ResponseEntity<UserDto[]> response = this.httpRequestBuilder
+                .get(USERS).scope(ADMIN).exchange(UserDto[].class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody()).isNotEmpty();
     }
 
     @Test
     void testReadUserNotFound() {
         ResponseEntity<UserDto> response = this.httpRequestBuilder
-                .get(USERS + MOBILE_ID, "666000666").scope(ADMIN).exchange(UserDto.class);
+                .get(USERS + ID_ID, "a4093025-cd94-50e0-986a-a15e3ad62ea8").scope(ADMIN).exchange(UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
     void testReadUserUnauthorized() {
         ResponseEntity<UserDto> response = this.httpRequestBuilder
-                .get(USERS + MOBILE_ID, "6").exchange(UserDto.class);
+                .get(USERS + ID_ID, "a4093025-cd94-40e0-986a-a15e3ad62ea8").exchange(UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
@@ -97,7 +106,7 @@ class UserResourceFT {
     @Test
     void testSearch() {
         ResponseEntity<UserDto[]> response = this.httpRequestBuilder
-                .get(USERS + SEARCH).param("dni", "c").scope(MANAGER).exchange(UserDto[].class);
+                .get(USERS).param("dni", "c").scope(MANAGER).exchange(UserDto[].class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(Arrays.stream(response.getBody()).map(UserDto::getFirstName).toList())
@@ -108,7 +117,7 @@ class UserResourceFT {
     @Test
     void testSearchDoesNotContainNull() {
         ResponseEntity<String> response = this.httpRequestBuilder
-                .get(USERS + SEARCH).scope(MANAGER).exchange(String.class);
+                .get(USERS).scope(MANAGER).exchange(String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).doesNotContain("null");
         log.debug("json: {}", response.getBody());

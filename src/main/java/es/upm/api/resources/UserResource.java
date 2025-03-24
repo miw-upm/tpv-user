@@ -1,6 +1,7 @@
 package es.upm.api.resources;
 
 import es.upm.api.data.entities.Scope;
+import es.upm.api.data.entities.UserFindCriteria;
 import es.upm.api.resources.view.UserDto;
 import es.upm.api.services.UserService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Log4j2
@@ -19,8 +21,7 @@ import java.util.stream.Stream;
 @RequestMapping(UserResource.USERS)
 public class UserResource {
     public static final String USERS = "/users";
-    public static final String MOBILE_ID = "/{mobile}";
-    public static final String SEARCH = "/search";
+    public static final String ID_ID = "/{id}";
     private final UserService userService;
 
     @Autowired
@@ -32,41 +33,24 @@ public class UserResource {
     @PostMapping
     public void createUser(@Valid @RequestBody UserDto creationUserDto) {
         creationUserDto.doDefault();
-        this.userService.createUser(creationUserDto.toUser(), this.extractRoleClaims());
+        this.userService.createUser(creationUserDto.toUser());
     }
 
-    @PreAuthorize(Security.ADMIN_MANAGER_OPERATOR + Security.OR + Security.CUSTOMER_OWNER)
-    @GetMapping(MOBILE_ID)
-    public UserDto readUser(@PathVariable String mobile) {
-        return new UserDto(this.userService.read(mobile));
+    @PreAuthorize(Security.ADMIN_MANAGER_OPERATOR)
+    @GetMapping(ID_ID)
+    public UserDto read(@PathVariable UUID id) {
+        return new UserDto(this.userService.read(id));
     }
 
+    @PreAuthorize(Security.ADMIN_MANAGER_OPERATOR_CUSTOMER)
     @GetMapping
-    public Stream<UserDto> readAll() {
-        return this.userService.readAll(this.extractRoleClaims())
+    public Stream<UserDto> findNullSafe(@ModelAttribute UserFindCriteria criteria) {
+        return this.userService.findNullSafe(criteria)
                 .map(UserDto::new)
                 .map(UserDto::ofMobileFirstName);
+
     }
 
-    @GetMapping(value = SEARCH)
-    public Stream<UserDto> findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-            @RequestParam(required = false) String mobile,
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String familyName,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String dni) {
-        return this.userService.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-                        mobile, firstName, familyName, email, dni, this.extractRoleClaims())
-                .map(UserDto::new)
-                .map(UserDto::ofMobileFirstName);
-    }
 
-    private Scope extractRoleClaims() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .map(Scope::of)
-                .orElse(Scope.ANONYMOUS);
-    }
 
 }

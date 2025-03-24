@@ -3,10 +3,13 @@ package es.upm.api.services;
 import es.upm.api.data.daos.UserRepository;
 import es.upm.api.data.entities.Scope;
 import es.upm.api.data.entities.User;
+import es.upm.api.data.entities.UserFindCriteria;
 import es.upm.api.services.exceptions.ConflictException;
 import es.upm.api.services.exceptions.ForbiddenException;
 import es.upm.api.services.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +30,8 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void createUser(User user, Scope scope) {
-        if (!authorizedScopes(scope).contains(user.getScope())) {
+    public void createUser(User user) {
+        if (!authorizedScopes().contains(user.getScope())) {
             throw new ForbiddenException("Insufficient role to create this userDto: " + user);
         }
         this.assertNoExistByMobile(user.getMobile());
@@ -41,14 +44,20 @@ public class UserService {
     }
 
     public Stream<User> readAll(Scope scope) {
-        return this.userRepository.findByScopeIn(authorizedScopes(scope)).stream();
+        return this.userRepository.findByScopeIn(authorizedScopes()).stream();
     }
 
-    private List<Scope> authorizedScopes(Scope scope) {
+    private List<Scope> authorizedScopes() {
+        Scope scope = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .map(Scope::of)
+                .orElse(Scope.ANONYMOUS);
+
         return switch (scope) {
             case ADMIN -> List.of(Scope.ADMIN, Scope.MANAGER, Scope.OPERATOR, Scope.CUSTOMER);
             case MANAGER -> List.of(Scope.MANAGER, Scope.OPERATOR, Scope.CUSTOMER);
-            case OPERATOR -> List.of(Scope.CUSTOMER);
+            case OPERATOR, CUSTOMER -> List.of(Scope.CUSTOMER);
             default -> List.of();
         };
     }
@@ -71,15 +80,29 @@ public class UserService {
         }
     }
 
-    public Stream<User> findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-            String mobile, String firstName, String familyName, String email, String dni, Scope scope) {
+    public Stream<User> findNullSafe(UserFindCriteria criteria) {
+        if (criteria.all()) {
+            return this.userRepository.findByScopeIn(authorizedScopes()).stream();
+        }
+
+        if (criteria.isProjection()) {
+            User user = this.userRepository.findByMobile(criteria.getMobile())
+                    .orElseThrow(() -> new NotFoundException("The mobile don't exist: " + criteria.getMobile()));
+            if (!SecurityContextHolder.getContext().getAuthentication().getName().contains(criteria.getMobile())) {
+                throw new ForbiddenException("Forbidden access to mobile: " + criteria.getMobile());
+            }
+            return Stream.of(user);
+        }
+
         return this.userRepository.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-                mobile, firstName, familyName, email, dni, this.authorizedScopes(scope)
+                criteria.getMobile(), criteria.getFirstName(), criteria.getFamilyName(), criteria.getEmail(), criteria.getDni(), this.authorizedScopes()
         ).stream();
+
     }
 
-    public User read(String mobile) {
-        return this.userRepository.findByMobile(mobile)
-                .orElseThrow(() -> new NotFoundException("The mobile don't exist: " + mobile));
+    public User read(UUID id) {
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("The id don't exist: " + id));
     }
+
 }
