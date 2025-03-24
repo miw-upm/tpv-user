@@ -35,7 +35,7 @@ class UserDtoRepositoryIT {
     void testFindByMobileAndFirstNameAndFamilyNameAndEmailAndDniNullSafeWithMobile() {
         assertThat(this.userRepository.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
                 "1", null, null, ".com", null, List.of(MANAGER)))
-                .anyMatch(user -> "666666001".equals(user.getMobile()));
+                .anyMatch(user -> "666666001" .equals(user.getMobile()));
     }
 
     @Test

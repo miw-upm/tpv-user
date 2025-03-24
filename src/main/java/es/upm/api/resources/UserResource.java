@@ -1,6 +1,5 @@
 package es.upm.api.resources;
 
-import es.upm.api.data.entities.Scope;
 import es.upm.api.data.entities.UserFindCriteria;
 import es.upm.api.resources.view.UserDto;
 import es.upm.api.services.UserService;
@@ -8,8 +7,6 @@ import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -48,9 +45,6 @@ public class UserResource {
         return this.userService.findNullSafe(criteria)
                 .map(UserDto::new)
                 .map(UserDto::ofMobileFirstName);
-
     }
-
-
 
 }

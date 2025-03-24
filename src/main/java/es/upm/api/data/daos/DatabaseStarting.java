@@ -41,7 +41,7 @@ public class DatabaseStarting {
 
     public void initialize() {
         if (this.userRepository.findByScopeIn(List.of(Scope.ADMIN)).isEmpty()) {
-            User user = User.builder().id(UUID.randomUUID()).mobile(this.mobile).firstName(this.admin)
+            User user = User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff6666")).mobile(this.mobile).firstName(this.admin)
                     .password(this.passwordEncoder.encode(this.password))
                     .scope(Scope.ADMIN).registrationDate(LocalDateTime.now()).active(true).build();
             this.userRepository.save(user);

@@ -43,10 +43,6 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-    public Stream<User> readAll(Scope scope) {
-        return this.userRepository.findByScopeIn(authorizedScopes()).stream();
-    }
-
     private List<Scope> authorizedScopes() {
         Scope scope = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)

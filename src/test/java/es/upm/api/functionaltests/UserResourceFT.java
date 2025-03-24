@@ -14,7 +14,8 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Arrays;
 
 import static es.upm.api.data.entities.Scope.*;
-import static es.upm.api.resources.UserResource.*;
+import static es.upm.api.resources.UserResource.ID_ID;
+import static es.upm.api.resources.UserResource.USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Log4j2
@@ -31,7 +32,7 @@ class UserResourceFT {
     @Test
     void testReadUser() {
         ResponseEntity<UserDto> response = this.httpRequestBuilder
-                .get(USERS + ID_ID, "a4093025-cd94-40e0-986a-a15e3ad62ea8").scope(ADMIN).exchange(UserDto.class);
+                .get(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000").scope(ADMIN).exchange(UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getFirstName()).isEqualTo("customer");
@@ -49,7 +50,7 @@ class UserResourceFT {
     @Test
     void testReadUserNotFound() {
         ResponseEntity<UserDto> response = this.httpRequestBuilder
-                .get(USERS + ID_ID, "a4093025-cd94-50e0-986a-a15e3ad62ea8").scope(ADMIN).exchange(UserDto.class);
+                .get(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff9999").scope(ADMIN).exchange(UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 

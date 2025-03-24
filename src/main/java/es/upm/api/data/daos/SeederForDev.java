@@ -43,30 +43,30 @@ public class SeederForDev {
     private void seedDataBase() {
         log.warn("------- Initial Load from JAVA -----------");
         User[] users = {
-                User.builder().id(UUID.fromString("a4093025-cd94-40e0-986a-a15e3ad62ea8"))
+                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000"))
                         .mobile("66").firstName("customer").password(pass).scope(Scope.CUSTOMER)
                         .registrationDate(LocalDateTime.now()).active(true).build(),
-                User.builder().id(UUID.fromString("dc64243d-52c5-40ba-b02e-3ea014edc11d"))
+                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0001"))
                         .mobile("666666000").firstName("adm").password(pass).dni(null).address("C/TPV, 0")
                         .email("adm@gmail.com").scope(Scope.ADMIN).registrationDate(LocalDateTime.now()).active(true)
                         .build(),
-                User.builder().id(UUID.fromString("0cab4d14-3b8f-4d09-b08c-2eab8940af44"))
+                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0002"))
                         .mobile("666666001").firstName("man").password(pass).dni("66666601C").address("C/TPV, 1")
                         .email("man@gmail.com").scope(Scope.MANAGER).registrationDate(LocalDateTime.now()).active(true)
                         .build(),
-                User.builder().id(UUID.fromString("7b8a9c2d-b2e2-4d18-aa1c-67b7ebe20ee3"))
+                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0003"))
                         .mobile("666666002").firstName("ope").password(pass).dni("66666602K").address("C/TPV, 2")
                         .email("ope@gmail.com").scope(Scope.OPERATOR).registrationDate(LocalDateTime.now()).active(true)
                         .build(),
-                User.builder().id(UUID.fromString("59b97cd1-55bd-4e98-87c1-23ea20e57dfc"))
+                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0004"))
                         .mobile("666666003").firstName("c1").familyName("ac1").password(pass).dni("66666603E")
                         .address("C/TPV, 3").email("c1@gmail.com").scope(Scope.CUSTOMER)
                         .registrationDate(LocalDateTime.now()).active(true).build(),
-                User.builder().id(UUID.fromString("0e4dd259-3721-44bb-b836-f1c994bc3a5a"))
+                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0005"))
                         .mobile("666666004").firstName("c2").familyName("ac2").password(pass).dni("66666604T")
                         .address("C/TPV, 4").email("c2@gmail.com").scope(Scope.CUSTOMER)
                         .registrationDate(LocalDateTime.now()).active(true).build(),
-                User.builder().id(UUID.fromString("995f0d85-409d-46e1-9e0a-7c7dcbf2d50d"))
+                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0006"))
                         .mobile("666666005").firstName("c3").password(pass).scope(Scope.CUSTOMER)
                         .registrationDate(LocalDateTime.now()).active(true).build()
         };
