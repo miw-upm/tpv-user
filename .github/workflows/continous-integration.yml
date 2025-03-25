@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -22,8 +22,7 @@ jobs:
 
       - name: Extract version from pom.xml
         id: get-version
-        run: |
-          echo "ARTIFACT=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_ENV     
+        run: echo "ARTIFACT=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Build & Unit & IT & FT & Sonar Analysis
         run: >

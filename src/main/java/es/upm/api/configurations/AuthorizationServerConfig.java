@@ -140,7 +140,6 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
     }
 
     @Bean
-    //@Profile("!test")
     public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizerRoleByScope() {
         return context -> {
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {

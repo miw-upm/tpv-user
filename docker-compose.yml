@@ -7,7 +7,6 @@ services:
     ports:
       - "8081:8081"
     environment:
-      # host.docker.internal: ruta al localhost de la máquina anfitriona
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tpvuser
       EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://host.docker.internal:8761/eureka/
     networks:
