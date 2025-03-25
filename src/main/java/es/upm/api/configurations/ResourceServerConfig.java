@@ -1,7 +1,6 @@
 package es.upm.api.configurations;
 
 import es.upm.api.data.entities.Scope;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -13,7 +12,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -53,12 +51,6 @@ public class ResourceServerConfig {  // validate tokens y security APIs con SCOP
             }
         });
         return jwtAuthenticationConverter;
-    }
-
-    @Bean
-    @LoadBalanced
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 
 }

@@ -36,4 +36,5 @@ La seguridad esta basada en OAuth2 y OpenId Connect, desarrollando ambos proceso
 ```sh
 > docker compose -f docker-compose-db.yml -p databases up -d
 ```
+* Cliente Web: `http://localhost:8081/swagger-ui.html`
 
