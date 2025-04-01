@@ -10,6 +10,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,7 +40,15 @@ public class LoggingFilter extends OncePerRequestFilter {
             String paramValue = request.getParameter(paramName);
             log.info("  {}: {}", paramName, paramValue);
         }
-        filterChain.doFilter(request, response);
+        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
+        filterChain.doFilter(request, wrappedResponse);
+        log.info("-   -   -   -   -   -   -   -   -   -   -   -   -   -   -");
+        byte[] responseArray = wrappedResponse.getContentAsByteArray();
+        if (responseArray.length > 0) {
+            String responseBody = new String(responseArray, response.getCharacterEncoding());
+            log.info("Response body: {}", responseBody);
+        }
+        wrappedResponse.copyBodyToResponse();
     }
 }
 

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum Scope {
-    ADMIN, MANAGER, OPERATOR, CUSTOMER, AUTHENTICATED, ANONYMOUS;
+    ADMIN, MANAGER, OPERATOR, CUSTOMER, URL_TOKEN, NONE;
 
     public static final String PREFIX = "SCOPE_";
     public static final String ROLE_PREFIX = "ROLE_";

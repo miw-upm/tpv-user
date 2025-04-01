@@ -33,7 +33,7 @@ public class UserResource {
         this.userService.createUser(creationUserDto.toUser());
     }
 
-    @PreAuthorize(Security.ADMIN_MANAGER_OPERATOR)
+    @PreAuthorize(Security.ADMIN_MANAGER_OPERATOR_URL_TOKEN)
     @GetMapping(ID_ID)
     public UserDto read(@PathVariable UUID id) {
         return new UserDto(this.userService.read(id));
