@@ -48,12 +48,12 @@ public class UserService {
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .map(Scope::of)
-                .orElse(Scope.NONE);
+                .orElse(Scope.ANONYMOUS);
 
         return switch (scope) {
             case ADMIN -> List.of(Scope.ADMIN, Scope.MANAGER, Scope.OPERATOR, Scope.CUSTOMER);
             case MANAGER -> List.of(Scope.MANAGER, Scope.OPERATOR, Scope.CUSTOMER);
-            case OPERATOR, CUSTOMER -> List.of(Scope.CUSTOMER);
+            case OPERATOR, CUSTOMER, ANONYMOUS -> List.of(Scope.CUSTOMER);
             default -> List.of();
         };
     }
