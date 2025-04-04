@@ -1,6 +1,6 @@
 package es.upm.api.data.daos;
 
-import es.upm.api.data.entities.Scope;
+import es.upm.api.data.entities.Role;
 import es.upm.api.data.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByMobile(String mobile);
 
-    List<User> findByScopeIn(Collection<Scope> scopes);
+    List<User> findByRoleIn(Collection<Role> roles);
 
     boolean existsByMobile(String mobile);
 
@@ -28,7 +28,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "(coalesce(?3, '') = '' or lower(u.familyName) like lower(concat('%',?3,'%'))) and" +
             "(coalesce(?4, '') = '' or lower(u.email) like lower(concat('%',?4,'%'))) and" +
             "(coalesce(?5, '') = '' or lower(u.dni) like lower(concat('%',?5,'%'))) and" +
-            "(u.scope in ?6)")
+            "(u.role in ?6)")
     List<User> findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-            String mobile, String firstName, String familyName, String email, String dni, Collection<Scope> scopes);
+            String mobile, String firstName, String familyName, String email, String dni, Collection<Role> roles);
 }

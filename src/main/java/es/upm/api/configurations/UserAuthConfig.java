@@ -5,7 +5,6 @@ import es.upm.api.data.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -29,7 +28,7 @@ public class UserAuthConfig { // Authentication with user:password
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getMobile())
                     .password(user.getPassword())
-                    .authorities(new SimpleGrantedAuthority(user.getScope().scopeValue()))
+                    .roles(user.getRole().value())
                     .build();
         };
     }

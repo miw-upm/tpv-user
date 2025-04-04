@@ -1,6 +1,6 @@
 package es.upm.api.data.daos;
 
-import es.upm.api.data.entities.Scope;
+import es.upm.api.data.entities.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,7 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-import static es.upm.api.data.entities.Scope.*;
+import static es.upm.api.data.entities.Role.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -25,10 +25,10 @@ class UserDtoRepositoryIT {
 
     @Test
     void testFindByScopeIn() {
-        List<Scope> scopes = List.of(ADMIN, MANAGER);
-        assertThat(this.userRepository.findByScopeIn(scopes))
+        List<Role> roles = List.of(ADMIN, MANAGER);
+        assertThat(this.userRepository.findByRoleIn(roles))
                 .isNotEmpty()
-                .allMatch(user -> scopes.contains(user.getScope()));
+                .allMatch(user -> roles.contains(user.getRole()));
     }
 
     @Test

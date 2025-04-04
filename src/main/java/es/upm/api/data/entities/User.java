@@ -30,7 +30,7 @@ public class User {
     private String address;
     private String password;
     @Enumerated(EnumType.STRING)
-    private Scope scope;
+    private Role role;
     private LocalDateTime registrationDate;
     private Boolean active;
 }

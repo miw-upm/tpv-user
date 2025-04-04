@@ -1,6 +1,6 @@
 package es.upm.api.resources.view;
 
-import es.upm.api.data.entities.Scope;
+import es.upm.api.data.entities.Role;
 import es.upm.api.data.entities.User;
 import es.upm.api.resources.view.validations.Validations;
 import jakarta.validation.constraints.NotBlank;
@@ -33,7 +33,7 @@ public class UserDto {
     private String dni;
     private String address;
     private String password;
-    private Scope scope;
+    private Role role;
     private LocalDateTime registrationDate;
     private Boolean active;
 
@@ -46,8 +46,8 @@ public class UserDto {
         if (Objects.isNull(password)) {
             password = UUID.randomUUID().toString();
         }
-        if (Objects.isNull(scope)) {
-            this.scope = Scope.CUSTOMER;
+        if (Objects.isNull(role)) {
+            this.role = Role.CUSTOMER;
         }
         if (Objects.isNull(active)) {
             this.active = true;

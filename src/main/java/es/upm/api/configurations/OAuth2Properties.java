@@ -17,5 +17,6 @@ public class OAuth2Properties {
     private String issuer;
     private String apiClientId;
     private String apiClientSecret;
+    private String spaClientId;
 }
 

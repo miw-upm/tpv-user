@@ -18,10 +18,7 @@ import org.springframework.context.annotation.Configuration;
                         authorizationUrl = "http://localhost:8081/oauth2/authorize",
                         tokenUrl = "http://localhost:8081/oauth2/token",
                         scopes = {
-                                @OAuthScope(name = "admin", description = "admin"),
-                                @OAuthScope(name = "manager", description = "admin"),
-                                @OAuthScope(name = "operator", description = "admin"),
-                                @OAuthScope(name = "customer", description = "manager"),
+                                @OAuthScope(name = "profile", description = "profile")
                         }
                 )
         )

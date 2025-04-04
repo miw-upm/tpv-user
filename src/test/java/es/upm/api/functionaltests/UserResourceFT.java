@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 
-import static es.upm.api.data.entities.Scope.*;
+import static es.upm.api.data.entities.Role.*;
 import static es.upm.api.resources.UserResource.ID_ID;
 import static es.upm.api.resources.UserResource.USERS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +32,7 @@ class UserResourceFT {
     @Test
     void testReadUser() {
         ResponseEntity<UserDto> response = this.httpRequestBuilder
-                .get(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000").scope(ADMIN).exchange(UserDto.class);
+                .get(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000").role(ADMIN).exchange(UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getFirstName()).isEqualTo("customer");
@@ -41,7 +41,7 @@ class UserResourceFT {
     @Test
     void testFindAll() {
         ResponseEntity<UserDto[]> response = this.httpRequestBuilder
-                .get(USERS).scope(ADMIN).exchange(UserDto[].class);
+                .get(USERS).role(ADMIN).exchange(UserDto[].class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotEmpty();
@@ -50,7 +50,7 @@ class UserResourceFT {
     @Test
     void testReadUserNotFound() {
         ResponseEntity<UserDto> response = this.httpRequestBuilder
-                .get(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff9999").scope(ADMIN).exchange(UserDto.class);
+                .get(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff9999").role(ADMIN).exchange(UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
@@ -65,7 +65,7 @@ class UserResourceFT {
     void testCreateUserWithAdmin() {
         UserDto userDto = UserDto.builder().mobile("666001666").firstName("daemon").build();
         ResponseEntity<Void> response = this.httpRequestBuilder
-                .post(USERS).body(userDto).scope(ADMIN).exchange(Void.class);
+                .post(USERS).body(userDto).role(ADMIN).exchange(Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
@@ -73,7 +73,7 @@ class UserResourceFT {
     void testCreateUserConflict() {
         UserDto userDto = UserDto.builder().mobile("666666000").firstName("daemon").build();
         ResponseEntity<Void> response = this.httpRequestBuilder
-                .post(USERS).body(userDto).scope(ADMIN).exchange(Void.class);
+                .post(USERS).body(userDto).role(ADMIN).exchange(Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
 
@@ -81,7 +81,7 @@ class UserResourceFT {
     void testCreateUserBadNumber() {
         UserDto userDto = UserDto.builder().mobile("1").firstName("daemon").build();
         ResponseEntity<Void> response = this.httpRequestBuilder
-                .post(USERS).body(userDto).scope(ADMIN).exchange(Void.class);
+                .post(USERS).body(userDto).role(ADMIN).exchange(Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -89,14 +89,14 @@ class UserResourceFT {
     void testCreateUserWithoutNumber() {
         UserDto userDto = UserDto.builder().mobile(null).firstName("daemon").build();
         ResponseEntity<Void> response = this.httpRequestBuilder
-                .post(USERS).body(userDto).scope(ADMIN).exchange(Void.class);
+                .post(USERS).body(userDto).role(ADMIN).exchange(Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     void testReadOperator() {
         ResponseEntity<UserDto[]> response = this.httpRequestBuilder
-                .get(USERS).scope(OPERATOR).exchange(UserDto[].class);
+                .get(USERS).role(OPERATOR).exchange(UserDto[].class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(Arrays.stream(response.getBody()).map(UserDto::getFirstName).toList())
@@ -107,7 +107,7 @@ class UserResourceFT {
     @Test
     void testSearch() {
         ResponseEntity<UserDto[]> response = this.httpRequestBuilder
-                .get(USERS).param("dni", "c").scope(MANAGER).exchange(UserDto[].class);
+                .get(USERS).param("dni", "c").role(MANAGER).exchange(UserDto[].class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(Arrays.stream(response.getBody()).map(UserDto::getFirstName).toList())
@@ -118,7 +118,7 @@ class UserResourceFT {
     @Test
     void testSearchDoesNotContainNull() {
         ResponseEntity<String> response = this.httpRequestBuilder
-                .get(USERS).scope(MANAGER).exchange(String.class);
+                .get(USERS).role(MANAGER).exchange(String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).doesNotContain("null");
         log.debug("json: {}", response.getBody());

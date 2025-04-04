@@ -3,26 +3,24 @@ package es.upm.api.data.entities;
 import java.util.Arrays;
 import java.util.List;
 
-public enum Scope {
+public enum Role {
     ADMIN, MANAGER, OPERATOR, CUSTOMER, URL_TOKEN, ANONYMOUS, AUTHENTICATED;
 
-    public static final String PREFIX = "SCOPE_";
-    public static final String ROLE_PREFIX = "ROLE_";
+    public static final String PREFIX = "ROLE_";
 
     public static List<String> allValues() {
-        return Arrays.stream(Scope.values())
-                .map(Scope::value)
+        return Arrays.stream(Role.values())
+                .map(Role::value)
                 .toList();
     }
 
-    public static Scope of(String withPrefix) {
-        return Scope.valueOf(withPrefix
+    public static Role of(String withPrefix) {
+        return Role.valueOf(withPrefix
                 .replace(PREFIX, "")
-                .replace(ROLE_PREFIX, "")
                 .toUpperCase());
     }
 
-    public String scopeValue() {
+    public String roleValue() {
         return PREFIX + this.value();
     }
 

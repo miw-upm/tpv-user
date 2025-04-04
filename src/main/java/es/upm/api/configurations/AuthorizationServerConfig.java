@@ -4,7 +4,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import es.upm.api.data.entities.Scope;
+import es.upm.api.data.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientCredentialsAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -32,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -70,6 +72,17 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
                 .refreshTokenTimeToLive(Duration.ofDays(30))
                 .build();
 
+        RegisteredClient spaClient =
+                RegisteredClient.withId(UUID.randomUUID().toString())
+                        .clientId(this.oAuth2Properties.getSpaClientId())
+                        .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                        .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                        .redirectUris(uris -> uris.addAll(this.oAuth2Properties.getRedirectUris()))
+                        .scopes(scopes -> scopes.addAll(Scope.allValues()))
+                        .tokenSettings(tokenSettings)
+                        .build();
+
         RegisteredClient userClient =
                 RegisteredClient.withId(UUID.randomUUID().toString())
                         .clientId(this.oAuth2Properties.getClientId())
@@ -95,7 +108,7 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
                         .tokenSettings(tokenSettings)
                         .build();
 
-        return new InMemoryRegisteredClientRepository(userClient, apiClient);
+        return new InMemoryRegisteredClientRepository(userClient, apiClient, spaClient);
     }
 
     // AUTHORIZATION_CODE
@@ -143,21 +156,24 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
     public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizerRoleByScope() {
         return context -> {
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
-                Set<String> scopes;
-                if (context.getPrincipal() != null && context.getPrincipal().getAuthorities() != null &&
-                        !context.getPrincipal().getAuthorities().isEmpty()) {
-                    scopes = context.getPrincipal().getAuthorities().stream()
-                            .map(GrantedAuthority::getAuthority)
-                            .map(Scope::of)
-                            .map(Scope::value)
-                            .collect(Collectors.toSet()); //Scope of user
-                } else {
-                    scopes = context.getAuthorizedScopes(); // Scope of request
+                Set<String> roles = new HashSet<>();
+                if (context.getPrincipal() != null
+                        && context.getPrincipal().getAuthorities() != null
+                        && !context.getPrincipal().getAuthorities().isEmpty()) {
+                    roles.addAll(
+                            context.getPrincipal().getAuthorities().stream()
+                                    .map(GrantedAuthority::getAuthority)
+                                    .map(Role::of)
+                                    .map(Role::value)
+                                    .collect(Collectors.toSet())
+                    ); //Scope of user
+                } else if (context.getAuthorizationGrant() instanceof OAuth2ClientCredentialsAuthenticationToken clientCredentialsToken) {
+                    String role = (String) clientCredentialsToken.getAdditionalParameters().get("role");
+                    roles.add(role);
                 }
-                context.getClaims().claim("scope", String.join(" ", scopes));
+                context.getClaims().claim("roles", String.join(" ", roles));
             }
         };
     }
 
 }
-

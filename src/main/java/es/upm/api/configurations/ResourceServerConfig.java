@@ -1,6 +1,6 @@
 package es.upm.api.configurations;
 
-import es.upm.api.data.entities.Scope;
+import es.upm.api.data.entities.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -35,18 +35,18 @@ public class ResourceServerConfig {  // validate tokens y security APIs con SCOP
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix(Scope.PREFIX);
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("scope");
+        grantedAuthoritiesConverter.setAuthorityPrefix(Role.PREFIX);
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            if (jwt.getClaim("scope") != null) { // standard Auth2
+            if (jwt.getClaim("roles") != null) { // standard Auth2
                 return grantedAuthoritiesConverter.convert(jwt);
             } else {
-                return Optional.ofNullable(jwt.getClaimAsStringList("cognito:groups"))// AWS cognito: group as scope
+                return Optional.ofNullable(jwt.getClaimAsStringList("cognito:groups"))// AWS cognito: group as role
                         .orElse(Collections.emptyList())
                         .stream()
-                        .map(group -> new SimpleGrantedAuthority(Scope.PREFIX + group))
+                        .map(group -> new SimpleGrantedAuthority(Role.PREFIX + group))
                         .collect(Collectors.toList());
             }
         });

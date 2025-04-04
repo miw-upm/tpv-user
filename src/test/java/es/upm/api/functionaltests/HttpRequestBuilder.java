@@ -1,6 +1,7 @@
 package es.upm.api.functionaltests;
 
-import es.upm.api.data.entities.Scope;
+import es.upm.api.configurations.Scope;
+import es.upm.api.data.entities.Role;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -22,7 +23,7 @@ public class HttpRequestBuilder {
     private HttpMethod method;
     private String url;
     private Object[] uriVars;
-    private String scope;
+    private String role;
     private Object body;
 
     private HttpRequestBuilder(TestRestTemplate testRestTemplate,
@@ -75,8 +76,8 @@ public class HttpRequestBuilder {
     }
 
 
-    public HttpRequestBuilder scope(Scope scope) {
-        this.scope = scope.value();
+    public HttpRequestBuilder role(Role role) {
+        this.role = role.value();
         return this;
     }
 
@@ -85,7 +86,7 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    private String obtainAccessToken(String scope) {
+    private String obtainAccessToken(String role) {
         String accessTokenUrl = "/oauth2/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -95,7 +96,8 @@ public class HttpRequestBuilder {
         headers.set(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
         MultiValueMap<String, String> credentialsBody = new LinkedMultiValueMap<>();
         credentialsBody.add("grant_type", "client_credentials");
-        credentialsBody.add("scope", scope);
+        credentialsBody.add("scope", Scope.PROFILE.value());
+        credentialsBody.add("role", role);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(credentialsBody, headers);
         Map<?, ?> responseBody = Objects.requireNonNull(
                 testRestTemplate.postForEntity(accessTokenUrl, request, Map.class).getBody()
@@ -114,7 +116,7 @@ public class HttpRequestBuilder {
     }
 
     private HttpEntity<?> buildHttpEntity() {
-        HttpHeaders headers = buildHeaders(this.scope);
+        HttpHeaders headers = buildHeaders(this.role);
         if (this.body != null) {
             return new HttpEntity<>(this.body, headers);
         } else {

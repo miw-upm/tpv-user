@@ -1,6 +1,6 @@
 package es.upm.api.data.daos;
 
-import es.upm.api.data.entities.Scope;
+import es.upm.api.data.entities.Role;
 import es.upm.api.data.entities.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +40,10 @@ public class DatabaseStarting {
     }
 
     public void initialize() {
-        if (this.userRepository.findByScopeIn(List.of(Scope.ADMIN)).isEmpty()) {
+        if (this.userRepository.findByRoleIn(List.of(Role.ADMIN)).isEmpty()) {
             User user = User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff6666")).mobile(this.mobile).firstName(this.admin)
                     .password(this.passwordEncoder.encode(this.password))
-                    .scope(Scope.ADMIN).registrationDate(LocalDateTime.now()).active(true).build();
+                    .role(Role.ADMIN).registrationDate(LocalDateTime.now()).active(true).build();
             this.userRepository.save(user);
             log.warn("------- Created Admin -----------");
         }

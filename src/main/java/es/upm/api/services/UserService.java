@@ -1,7 +1,7 @@
 package es.upm.api.services;
 
 import es.upm.api.data.daos.UserRepository;
-import es.upm.api.data.entities.Scope;
+import es.upm.api.data.entities.Role;
 import es.upm.api.data.entities.User;
 import es.upm.api.data.entities.UserFindCriteria;
 import es.upm.api.services.exceptions.ConflictException;
@@ -31,7 +31,7 @@ public class UserService {
     }
 
     public void createUser(User user) {
-        if (!authorizedScopes().contains(user.getScope())) {
+        if (!authorizedScopes().contains(user.getRole())) {
             throw new ForbiddenException("Insufficient role to create this userDto: " + user);
         }
         this.assertNoExistByMobile(user.getMobile());
@@ -43,17 +43,17 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-    private List<Scope> authorizedScopes() {
-        Scope scope = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+    private List<Role> authorizedScopes() {
+        Role role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
-                .map(Scope::of)
-                .orElse(Scope.ANONYMOUS);
+                .map(Role::of)
+                .orElse(Role.ANONYMOUS);
 
-        return switch (scope) {
-            case ADMIN -> List.of(Scope.ADMIN, Scope.MANAGER, Scope.OPERATOR, Scope.CUSTOMER);
-            case MANAGER -> List.of(Scope.MANAGER, Scope.OPERATOR, Scope.CUSTOMER);
-            case OPERATOR, CUSTOMER, ANONYMOUS -> List.of(Scope.CUSTOMER);
+        return switch (role) {
+            case ADMIN -> List.of(Role.ADMIN, Role.MANAGER, Role.OPERATOR, Role.CUSTOMER);
+            case MANAGER -> List.of(Role.MANAGER, Role.OPERATOR, Role.CUSTOMER);
+            case OPERATOR, CUSTOMER, ANONYMOUS -> List.of(Role.CUSTOMER);
             default -> List.of();
         };
     }
@@ -78,7 +78,7 @@ public class UserService {
 
     public Stream<User> findNullSafe(UserFindCriteria criteria) {
         if (criteria.all()) {
-            return this.userRepository.findByScopeIn(authorizedScopes()).stream();
+            return this.userRepository.findByRoleIn(authorizedScopes()).stream();
         }
 
         if (criteria.isProjection()) {
