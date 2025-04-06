@@ -11,12 +11,14 @@ import java.util.List;
 @ConfigurationProperties(prefix = "spring.security.oauth2.clients")
 @Data
 public class OAuth2Properties {
-    private String clientId;
-    private String clientSecret;
-    private List<String> redirectUris = new ArrayList<>();
     private String issuer;
+    private String openApiClientId;
+    private String openApiClientSecret;
+    private List<String> openApiRedirectUris = new ArrayList<>();
+    private String spaClientId;
+    private String spaLoginRedirectUri;
+    private String spaLogoutRedirectUri;
     private String apiClientId;
     private String apiClientSecret;
-    private String spaClientId;
 }
 

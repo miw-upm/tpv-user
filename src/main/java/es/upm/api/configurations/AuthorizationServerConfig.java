@@ -7,10 +7,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import es.upm.api.data.daos.UserRepository;
 import es.upm.api.data.entities.Role;
 import es.upm.api.services.exceptions.NotFoundException;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,44 +14,31 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientCredentialsAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcLogoutAuthenticationContext;
-import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcLogoutAuthenticationProvider;
-import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcLogoutAuthenticationToken;
-import org.springframework.security.oauth2.server.authorization.oidc.web.authentication.OidcLogoutAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -74,126 +57,12 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
         this.userRepository = userRepository;
     }
 
-    // Conversor para el logout que registra los datos recibidos (Pre-procesamiento)
-    public static class LoggingLogoutRequestConverter implements AuthenticationConverter {
-        private final OidcLogoutAuthenticationConverter delegate = new OidcLogoutAuthenticationConverter();
-
-        @Override
-        public Authentication convert(HttpServletRequest request) {
-            log.info("Logout Request recibida con parámetros: {}", request.getParameterMap());
-            Authentication auth = delegate.convert(request);
-            log.info("Logout Request convertida: {}", auth);
-            return auth;
-        }
-    }
-
-    // Handler para logout exitoso que registra la acción (Post-procesamiento)
-    // Validador personalizado que puede registrar y validar el logout (Procesamiento principal)
-    public static class CustomPostLogoutRedirectUriValidator implements Consumer<OidcLogoutAuthenticationContext> {
-        @Override
-        public void accept(OidcLogoutAuthenticationContext context) {
-            OidcLogoutAuthenticationToken token = context.getAuthentication();
-            RegisteredClient registeredClient = context.getRegisteredClient();
-            log.info("Validando logout para el cliente: {}", registeredClient.getClientId());
-            // Implementa aquí la lógica de validación deseada.
-            // Ejemplo:
-            // if (!esValido(token.getPostLogoutRedirectUri(), registeredClient)) {
-            //     throw new OAuth2AuthenticationException(new OAuth2Error("invalid_request", "Post logout redirect URI inválido", null));
-            // }
-        }
-    }
-
-    // Handler para logout exitoso que registra la acción (Post-procesamiento)
-    // Ahora implementa AuthenticationSuccessHandler en lugar de LogoutResponseHandler.
-    public static class LoggingLogoutResponseHandler implements AuthenticationSuccessHandler {
-        @Override
-        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-                throws IOException, ServletException {
-            log.info("Logout exitoso para el usuario: {}", authentication.getName());
-            // Invalida la sesión actual
-            if (request.getSession(false) != null) {
-                request.getSession().invalidate();
-                log.info("Sesión HTTP invalidada.");
-            }
-
-            // Eliminar cookies de sesión (ejemplo: JSESSIONID)
-            Cookie cookie = new Cookie("JSESSIONID", null);
-            cookie.setPath("/");
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
-            // Redirige o responde según la necesidad
-            response.sendRedirect("http://localhost:4200");
-        }
-    }
-
-    // Handler para errores en el logout que registra el error (Post-procesamiento)
-    public static class LoggingLogoutErrorResponseHandler implements AuthenticationFailureHandler {
-        @Override
-        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
-                throws IOException, ServletException {
-            log.error("Error durante el proceso de logout: {}", exception.getMessage(), exception);
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
-        }
-    }
-
-
     @Bean
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-                OAuth2AuthorizationServerConfigurer.authorizationServer();
-
-//        authorizationServerConfigurer.oidc(Customizer.withDefaults()); //.well-known/openid-configuration
-
-        // Configuramos OIDC, personalizando el endpoint de logout
-        authorizationServerConfigurer.oidc(oidc ->
-                oidc.logoutEndpoint(logoutEndpoint ->
-                        logoutEndpoint
-                                // Pre-procesamiento: Conversor que registra los parámetros y resultado de la conversión
-                                .logoutRequestConverter(new LoggingLogoutRequestConverter())
-                                // Procesamiento: Personalización de AuthenticationProviders para incluir nuestro validador
-                                .authenticationProviders(providers -> {
-                                    providers.forEach(provider -> {
-                                        if (provider instanceof OidcLogoutAuthenticationProvider oidcProvider) {
-                                            oidcProvider.setAuthenticationValidator(new CustomPostLogoutRedirectUriValidator());
-                                            log.info("Validador personalizado asignado al provider: {}", oidcProvider);
-                                        }
-                                    });
-                                })
-                                // Post-procesamiento: Handlers para logout exitoso y manejo de error
-                                .logoutResponseHandler(new LoggingLogoutResponseHandler())
-                                .errorResponseHandler(new LoggingLogoutErrorResponseHandler())
-                )
-        );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        OAuth2AuthorizationServerConfigurer
+                authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
+        authorizationServerConfigurer.oidc(Customizer.withDefaults()); //add OICD: .well-known/openid-configuration ...
         return http
-//                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
@@ -201,40 +70,6 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
                 .with(authorizationServerConfigurer, Customizer.withDefaults())
                 .build();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
@@ -249,25 +84,26 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
                         .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                        .redirectUris(uris -> uris.addAll(this.oAuth2Properties.getRedirectUris()))
+                        .redirectUri(this.oAuth2Properties.getSpaLoginRedirectUri())
                         .scopes(scopes -> scopes.addAll(Scope.allValues()))
                         .tokenSettings(tokenSettings)
                         .clientSettings(ClientSettings.builder()
                                 .requireAuthorizationConsent(false)
                                 .build())
+                        .postLogoutRedirectUri(this.oAuth2Properties.getSpaLogoutRedirectUri())
                         .build();
 
-        RegisteredClient userClient =
+        RegisteredClient openApiClient =
                 RegisteredClient.withId(UUID.randomUUID().toString())
-                        .clientId(this.oAuth2Properties.getClientId())
-                        .clientSecret(passwordEncoder.encode(this.oAuth2Properties.getClientSecret()))
+                        .clientId(this.oAuth2Properties.getOpenApiClientId())
+                        .clientSecret(passwordEncoder.encode(this.oAuth2Properties.getOpenApiClientSecret()))
                         .clientAuthenticationMethods(methods -> methods.addAll(Set.of(
                                 ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
                                 ClientAuthenticationMethod.CLIENT_SECRET_POST
                         )))
                         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                        .redirectUris(uris -> uris.addAll(this.oAuth2Properties.getRedirectUris()))
+                        .redirectUris(uris -> uris.addAll(this.oAuth2Properties.getOpenApiRedirectUris()))
                         .scopes(scopes -> scopes.addAll(Scope.allValues()))
                         .tokenSettings(tokenSettings)
                         .build();
@@ -282,7 +118,7 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
                         .tokenSettings(tokenSettings)
                         .build();
 
-        return new InMemoryRegisteredClientRepository(userClient, apiClient, spaClient);
+        return new InMemoryRegisteredClientRepository(openApiClient, apiClient, spaClient);
     }
 
     // AUTHORIZATION_CODE
@@ -330,7 +166,6 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
     public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizerRoleByScope() {
         return context -> {
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())
-                    || "id_token".equals(context.getTokenType().getValue())
             ) {
                 Set<String> roles = new HashSet<>();
                 if (context.getPrincipal() != null

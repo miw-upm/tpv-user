@@ -17,19 +17,18 @@ spring:
   security:
     oauth2:
       clients:
-        client-id: client-id
-        client-secret: client-secret
-        redirect-uris:
+        issuer: http://localhost:8081
+        open-api-client-id: client-id
+        open-api-client-secret: client-secret
+        open-api-redirect-uris:
           - http://localhost:8081/swagger-ui/oauth2-redirect.html
           - http://localhost:8082/swagger-ui/oauth2-redirect.html
           - http://localhost:8083/swagger-ui/oauth2-redirect.html
-          - http://localhost:4200/callback
-          - http://localhost:4200
-          - http://localhost:4200/
-        issuer: http://localhost:8081
+        spa-client-id: spa-client-id
+        spa-login-redirect-uri: http://localhost:4200/callback
+        spa-logout-redirect-uri: http://localhost:4200
         api-client-id: api-client-id
         api-client-secret: api-client-secret
-        spa-client-id: spa-client-id
 
 server:
   forward-headers-strategy: native
@@ -52,7 +51,7 @@ logging:
   level:
     root: WARN
     es.upm: DEBUG
-    org.springframework.security: DEBUG
+#    org.springframework.security: DEBUG
 
 eureka:
   instance:
