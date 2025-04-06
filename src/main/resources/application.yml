@@ -23,13 +23,14 @@ spring:
           - http://localhost:8081/swagger-ui/oauth2-redirect.html
           - http://localhost:8082/swagger-ui/oauth2-redirect.html
           - http://localhost:8083/swagger-ui/oauth2-redirect.html
+          - http://localhost:4200/callback
           - http://localhost:4200
+          - http://localhost:4200/
         issuer: http://localhost:8081
         api-client-id: api-client-id
         api-client-secret: api-client-secret
         spa-client-id: spa-client-id
-#      authorizationserver:
-#        issuer: http://localhost:8080/tpv-user
+
 server:
   forward-headers-strategy: native
 
@@ -51,6 +52,7 @@ logging:
   level:
     root: WARN
     es.upm: DEBUG
+    org.springframework.security: DEBUG
 
 eureka:
   instance:
