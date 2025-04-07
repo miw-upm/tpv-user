@@ -66,12 +66,14 @@ class UserServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "666666003", roles = {"manager"})
+    @WithMockUser(username = "666666003", roles = {"customer"})
     void testReadOtherUser() {
         UserFindCriteria criteria = new UserFindCriteria();
         criteria.setMobile("666666004");
         criteria.setProjection(true);
-        assertThrows(ForbiddenException.class, () -> this.userService.findNullSafe(criteria));
+        List<User> users = this.userService.findNullSafe(criteria).toList();
+        assertThat(users).isEmpty();
+
     }
 
 }
