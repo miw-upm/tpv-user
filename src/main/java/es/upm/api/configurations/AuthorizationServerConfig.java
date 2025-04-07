@@ -18,7 +18,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientCredentialsAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
@@ -38,7 +37,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -61,7 +62,7 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer
                 authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
-        authorizationServerConfigurer.oidc(Customizer.withDefaults()); //add OICD: .well-known/openid-configuration ...
+        authorizationServerConfigurer.oidc(Customizer.withDefaults()); //add OIDC: .well-known/openid-configuration ...
         return http
                 .cors(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
@@ -114,7 +115,7 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
                         .clientSecret(passwordEncoder.encode(this.oAuth2Properties.getApiClientSecret()))
                         .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                         .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                        .scopes(scopes -> scopes.addAll(Scope.allValues()))
+                        .scope(Scope.PROFILE.value())
                         .tokenSettings(tokenSettings)
                         .build();
 
@@ -134,7 +135,7 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        RSAKey rsaKey = generateRsa(); // Generas el par de claves
+        RSAKey rsaKey = generateRsa(); // Genera el par de claves
         JWKSet jwkSet = new JWKSet(rsaKey);
         return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }

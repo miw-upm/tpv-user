@@ -43,23 +43,23 @@ public class LoggingFilter extends OncePerRequestFilter {
         }
 
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
+        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
+
+        try {
+            filterChain.doFilter(wrappedRequest, wrappedResponse);
+        } catch (Exception e) {
+            log.error("Error during filter processing", e);
+            throw e;
+        }
+
+        // Ahora que se ha procesado la request, se puede obtener el cuerpo
         byte[] requestArray = wrappedRequest.getContentAsByteArray();
         if (requestArray.length > 0) {
             String requestBody = new String(requestArray, wrappedRequest.getCharacterEncoding());
             log.debug("Request body (JSON): {}", requestBody);
         }
 
-
-        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
-
-        try {
-            filterChain.doFilter(request, wrappedResponse);
-        } catch (Exception e) {
-            log.error("Error during filter processing", e);
-            throw e;
-        }
-
-        log.debug("-   -   -   -   -   -   -   -   -   -   -   -   -   -   -");
+        log.debug("-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -    -   -   -   -");
         byte[] responseArray = wrappedResponse.getContentAsByteArray();
         if (responseArray.length > 0) {
             String responseBody = new String(responseArray, response.getCharacterEncoding());

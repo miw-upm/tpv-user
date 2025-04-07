@@ -42,9 +42,13 @@ public class UserResource {
     @PreAuthorize(Security.ADMIN_MANAGER_OPERATOR_CUSTOMER)
     @GetMapping
     public Stream<UserDto> findNullSafe(@ModelAttribute UserFindCriteria criteria) {
-        return this.userService.findNullSafe(criteria)
-                .map(UserDto::new)
-                .map(UserDto::ofMobileFirstName);
+        Stream<UserDto> userDtos = this.userService.findNullSafe(criteria)
+                .map(UserDto::new);
+        if (criteria.isProjection()) {
+            return userDtos;
+        } else {
+            return userDtos.map(UserDto::ofMobileFirstName);
+        }
     }
 
 }

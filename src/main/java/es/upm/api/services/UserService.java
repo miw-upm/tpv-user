@@ -53,7 +53,7 @@ public class UserService {
         return switch (role) {
             case ADMIN -> List.of(Role.ADMIN, Role.MANAGER, Role.OPERATOR, Role.CUSTOMER);
             case MANAGER -> List.of(Role.MANAGER, Role.OPERATOR, Role.CUSTOMER);
-            case OPERATOR, CUSTOMER, ANONYMOUS -> List.of(Role.CUSTOMER);
+            case OPERATOR, CUSTOMER, URL_TOKEN -> List.of(Role.CUSTOMER);
             default -> List.of();
         };
     }
@@ -77,22 +77,23 @@ public class UserService {
     }
 
     public Stream<User> findNullSafe(UserFindCriteria criteria) {
+        Stream<User> userDtos;
         if (criteria.all()) {
-            return this.userRepository.findByRoleIn(authorizedScopes()).stream();
+            userDtos = this.userRepository.findByRoleIn(authorizedScopes()).stream();
+        } else {
+            userDtos = this.userRepository.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
+                    criteria.getMobile(), criteria.getFirstName(), criteria.getFamilyName(), criteria.getEmail(), criteria.getDni(), this.authorizedScopes()
+            ).stream();
         }
-
-        if (criteria.isProjection()) {
-            User user = this.userRepository.findByMobile(criteria.getMobile())
-                    .orElseThrow(() -> new NotFoundException("The mobile don't exist: " + criteria.getMobile()));
-            if (!SecurityContextHolder.getContext().getAuthentication().getName().contains(criteria.getMobile())) {
-                throw new ForbiddenException("Forbidden access to mobile: " + criteria.getMobile());
-            }
-            return Stream.of(user);
+        if (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals(Role.CUSTOMER.roleValue())
+                )
+        ) {
+            userDtos = userDtos.filter(user -> user.getMobile().equals(SecurityContextHolder.getContext().getAuthentication().getName()));
         }
-
-        return this.userRepository.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-                criteria.getMobile(), criteria.getFirstName(), criteria.getFamilyName(), criteria.getEmail(), criteria.getDni(), this.authorizedScopes()
-        ).stream();
+        return userDtos;
 
     }
 
