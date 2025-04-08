@@ -66,6 +66,7 @@ public class AuthorizationServerConfig {  // Generate tokens OAuth2
         return http
                 .cors(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
+//                .formLogin(form -> form.loginPage("/tpv-user/login"))
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .with(authorizationServerConfigurer, Customizer.withDefaults())

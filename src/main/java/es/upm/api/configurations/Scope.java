@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum Scope {
-    OPENID, PROFILE;
+    OPENID, PROFILE, OFFLINE_ACCESS;
 
     public static final String PREFIX = "SCOPE_";
 
