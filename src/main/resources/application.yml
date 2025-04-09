@@ -17,7 +17,7 @@ spring:
   security:
     oauth2:
       clients:
-        issuer: http://localhost:8081
+        issuer: http://localhost:8080/tpv-user
         open-api-client-id: client-id
         open-api-client-secret: client-secret
         open-api-redirect-uris:
@@ -32,6 +32,8 @@ spring:
 
 server:
   forward-headers-strategy: native
+#  servlet:
+#    context-path: /tpv-user
 
 info:
   app:
