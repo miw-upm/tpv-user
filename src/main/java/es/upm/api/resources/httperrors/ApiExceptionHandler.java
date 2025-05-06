@@ -66,7 +66,6 @@ public class ApiExceptionHandler {
     })
     @ResponseBody
     public ErrorMessage badRequest(Exception exception) {
-        exception.printStackTrace();
         return new ErrorMessage(exception, HttpStatus.BAD_REQUEST.value());
     }
 

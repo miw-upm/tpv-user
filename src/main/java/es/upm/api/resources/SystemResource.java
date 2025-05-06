@@ -30,7 +30,7 @@ public class SystemResource {
 
     @GetMapping(value = VERSION_BADGE, produces = {"image/svg+xml"})
     public byte[] generateBadge() {
-        return new Badge().generateBadge("Render", "v" + version).getBytes();
+        return new Badge().generateBadge("AWS", "v" + version).getBytes();
     }
 
 }
