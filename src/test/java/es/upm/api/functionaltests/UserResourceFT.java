@@ -14,8 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Arrays;
 
 import static es.upm.api.data.entities.Role.*;
-import static es.upm.api.resources.UserResource.ID_ID;
-import static es.upm.api.resources.UserResource.USERS;
+import static es.upm.api.resources.UserResource.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Log4j2
@@ -35,8 +34,20 @@ class UserResourceFT {
                 .get(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000").role(ADMIN).exchange(UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMobile()).isEqualTo("66");
         assertThat(response.getBody().getFirstName()).isEqualTo("customer");
     }
+
+    @Test
+    void testReadByMobile() {
+        ResponseEntity<UserDto> response = this.httpRequestBuilder
+                .get(USERS + MOBILE + MOBILE_ID, "66").role(ADMIN).exchange(UserDto.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMobile()).isEqualTo("66");
+        assertThat(response.getBody().getFirstName()).isEqualTo("customer");
+    }
+
 
     @Test
     void testFindAll() {

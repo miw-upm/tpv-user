@@ -58,15 +58,25 @@ public class UserService {
         };
     }
 
-    private void assertNoExistByMobile(String mobile) {
-        if (this.userRepository.existsByMobile(mobile)) {
-            throw new ConflictException("The mobile already exists: " + mobile);
-        }
+    public User read(UUID id) {
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("The id don't exist: " + id));
+    }
+
+    public User readByMobile(String mobile) {
+        return this.userRepository.findByMobile(mobile)
+                .orElseThrow(() -> new NotFoundException("The mobile don't exists: " + mobile));
     }
 
     private void assertNoExistByEmail(String email) {
         if (email != null && this.userRepository.existsByEmail(email)) {
             throw new ConflictException("The email already exists: " + email);
+        }
+    }
+
+    private void assertNoExistByMobile(String mobile) {
+        if (this.userRepository.existsByMobile(mobile)) {
+            throw new ConflictException("The mobile already exists: " + mobile);
         }
     }
 
@@ -95,11 +105,6 @@ public class UserService {
         }
         return userDtos;
 
-    }
-
-    public User read(UUID id) {
-        return this.userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("The id don't exist: " + id));
     }
 
 }

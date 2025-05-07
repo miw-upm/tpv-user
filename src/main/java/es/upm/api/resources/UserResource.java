@@ -19,6 +19,8 @@ import java.util.stream.Stream;
 public class UserResource {
     public static final String USERS = "/users";
     public static final String ID_ID = "/{id}";
+    public static final String MOBILE = "/mobile";
+    public static final String MOBILE_ID = "/{mobile}";
     private final UserService userService;
 
     @Autowired
@@ -37,6 +39,12 @@ public class UserResource {
     @GetMapping(ID_ID)
     public UserDto read(@PathVariable UUID id) {
         return new UserDto(this.userService.read(id));
+    }
+
+    @PreAuthorize(Security.ADMIN_MANAGER_OPERATOR_URL_TOKEN)
+    @GetMapping(MOBILE + MOBILE_ID)
+    public UserDto readByMobile(@PathVariable String mobile) {
+        return new UserDto(this.userService.readByMobile(mobile));
     }
 
     @PreAuthorize(Security.ADMIN_MANAGER_OPERATOR_CUSTOMER)
